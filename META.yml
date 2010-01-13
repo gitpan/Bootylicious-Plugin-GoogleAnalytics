@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Bootylicious-Plugin-GoogleAnalytics
-version:            0.990101
+version:            0.990201
 abstract:           Google Analytics plugin for bootyliciuos
 author:
     - Viacheslav Tykhanovskyi <vti@cpan.org>
@@ -9,8 +9,8 @@ distribution_type:  module
 configure_requires:  {}
 build_requires:  {}
 requires:
-    Mojo:  0.999909
-    perl:  5.008001
+    Bootylicious:  0.910101
+    perl:          5.008001
 resources:
     homepage:    http://getbootylicious.org
     license:     http://dev.perl.org/licenses/

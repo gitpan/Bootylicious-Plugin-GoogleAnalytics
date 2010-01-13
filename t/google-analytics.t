@@ -1,21 +1,27 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
 
 use Test::More tests => 3;
 
-use lib 't/lib';
+use Mojolicious::Lite;
+use Test::Mojo;
 
-use TestController;
+push @{app->plugins->namespaces}, 'Bootylicious::Plugin';
+plugin google_analytics => {urchin => 'foo'};
 
-use_ok('Bootylicious::Plugin::GoogleAnalytics');
+# Silence
+app->log->level('error');
 
-my $ga = Bootylicious::Plugin::GoogleAnalytics->new(urchin => 'foo');
+get '/' => 'index';
 
-my $c = TestController->new;
-$c->res->body('<body></body>');
+my $t = Test::Mojo->new;
 
-$ga->hook_finalize($c);
-like($c->res->body, qr/google-analytics/);
-like($c->res->body, qr/foo/);
+$t->get_ok('/')->status_is(200)->content_like(qr/google-analytics/);
+
+__DATA__
+@@ index.html.ep
+<body>
+foo
+</body>

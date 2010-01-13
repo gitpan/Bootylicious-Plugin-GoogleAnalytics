@@ -7,31 +7,36 @@ use base 'Mojo::Base';
 
 use Mojo::ByteStream 'b';
 
-__PACKAGE__->attr('urchin');
+our $VERSION = '0.990201';
 
-our $VERSION = '0.990101';
+sub register {
+    my ($self, $app, $args) = @_;
 
-sub hook_finalize {
-    my $self = shift;
-    my $c = shift;
+    $args ||= {};
 
-    return unless $self->urchin;
+    return unless $args->{urchin};
 
-    my $body = $c->res->body;
+    $app->plugins->add_hook(
+        after_dispatch => sub {
+            my ($self, $c) = @_;
 
-    $c->stash(urchin => $self->urchin);
+            my $body = $c->res->body;
 
-    my $ga_script = $c->render_partial(
-        'template',
-        format         => 'html',
-        template_class => __PACKAGE__,
-        handler        => 'ep'
+            $c->stash(urchin => $args->{urchin});
+
+            my $ga_script = $c->render_partial(
+                'template',
+                format         => 'html',
+                template_class => __PACKAGE__,
+                handler        => 'ep'
+            );
+
+            $ga_script = b($ga_script)->encode('utf-8');
+
+            $body =~ s{</body>}{$ga_script</body>};
+            $c->res->body($body);
+        }
     );
-
-    $ga_script = b($ga_script)->encode('utf-8');
-
-    $body =~ s{</body>}{$ga_script</body>};
-    $c->res->body($body);
 }
 
 1;
